@@ -11,8 +11,8 @@ import (
 	"github.com/shogo82148/go-mecab"
 )
 
-// ToYazawa convert text to yazawanized sentence
-func ToYazawa(text string, random bool) string {
+// Convert convert text to yazawanized sentence
+func Convert(text string, atRandom bool) string {
 	tagger, err := mecab.New(map[string]string{})
 	if err != nil {
 		panic(err)
@@ -26,7 +26,7 @@ func ToYazawa(text string, random bool) string {
 		panic(err)
 	}
 
-	id := findSuitableIndexForReplace(node, random)
+	id := findSuitableIndexForReplace(node, atRandom)
 	convertedSentence := []string{}
 	for ; node != (mecab.Node{}); node = node.Next() {
 		if node.Id() == id {
@@ -40,7 +40,7 @@ func ToYazawa(text string, random bool) string {
 	return strings.Join(convertedSentence, "")
 }
 
-func findSuitableIndexForReplace(node mecab.Node, random bool) int {
+func findSuitableIndexForReplace(node mecab.Node, atRandom bool) int {
 	idForReplace := 0
 	maxScore := 0
 	for ; node != (mecab.Node{}); node = node.Next() {
@@ -57,7 +57,7 @@ func findSuitableIndexForReplace(node mecab.Node, random bool) int {
 			score += 8
 		}
 
-		if random {
+		if atRandom {
 			rand.Seed(time.Now().UnixNano())
 			score += rand.Intn(20)
 		} else {
