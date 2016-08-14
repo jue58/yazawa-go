@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/jue58/kana"
+	"github.com/gojp/kana"
 	"github.com/shogo82148/go-mecab"
 )
 
