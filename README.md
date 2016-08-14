@@ -9,11 +9,21 @@ YAZAWA-GO requires following:
 - Go
 
 # Installation
+Configuration for using MeCab(See also: [go-mecab](https://github.com/shogo82148/go-mecab)):
+```bash
+export CGO_LDFLAGS="`mecab-config --libs`"
+export CGO_CFLAGS="-I`mecab-config --inc-dir`"
+```
+
+Install with `go get`:
+```bash
+$ go get github.com/jue58/yazawa-go
+```
 
 # Usage
 
-example:
-```
+Example:
+```go
 package main
 
 import (
@@ -29,7 +39,7 @@ func main() {
 
 ## Command
 
-```
+```bash
 $ yazawa-go '俺達の熱意で世界が変わる'
 俺たちの『NETSUI』で世界が変わる
 
