@@ -2,15 +2,17 @@ package yazawa
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 	"unicode/utf8"
 
-	"github.com/gojp/kana"
+	"github.com/jue58/kana"
 	"github.com/shogo82148/go-mecab"
 )
 
 // ToYazawa convert text to yazawanized sentence
-func ToYazawa(text string) string {
+func ToYazawa(text string, random bool) string {
 	tagger, err := mecab.New(map[string]string{})
 	if err != nil {
 		panic(err)
@@ -24,7 +26,7 @@ func ToYazawa(text string) string {
 		panic(err)
 	}
 
-	id := findSuitableIndexForReplace(node)
+	id := findSuitableIndexForReplace(node, random)
 	convertedSentence := []string{}
 	for ; node != (mecab.Node{}); node = node.Next() {
 		if node.Id() == id {
@@ -38,7 +40,7 @@ func ToYazawa(text string) string {
 	return strings.Join(convertedSentence, "")
 }
 
-func findSuitableIndexForReplace(node mecab.Node) int {
+func findSuitableIndexForReplace(node mecab.Node, random bool) int {
 	idForReplace := 0
 	maxScore := 0
 	for ; node != (mecab.Node{}); node = node.Next() {
@@ -46,6 +48,7 @@ func findSuitableIndexForReplace(node mecab.Node) int {
 		word := node.Surface()
 		score += examineWord(word)
 		partsOfSpeech := strings.Split(node.Feature(), ",")[0]
+
 		if partsOfSpeech == "形容詞" {
 			score += 20
 		} else if partsOfSpeech == "名詞" {
@@ -53,6 +56,14 @@ func findSuitableIndexForReplace(node mecab.Node) int {
 		} else if partsOfSpeech == "動詞" {
 			score += 8
 		}
+
+		if random {
+			rand.Seed(time.Now().UnixNano())
+			score += rand.Intn(20)
+		} else {
+			score += utf8.RuneCountInString(word)
+		}
+
 		if score > maxScore {
 			maxScore = score
 			idForReplace = node.Id()
@@ -63,25 +74,24 @@ func findSuitableIndexForReplace(node mecab.Node) int {
 
 func examineWord(word string) int {
 	score := 0
-	hasKana := false
+	hasKatakana := false
 	hasKanji := false
 	for _, r := range word {
-		if !hasKana && kana.IsKana(fmt.Sprintf("%c", r)) {
-			hasKana = true
+		if !hasKatakana && kana.IsKatakana(fmt.Sprintf("%c", r)) {
+			hasKatakana = true
 		}
 		if !hasKanji && kana.IsKanji(fmt.Sprintf("%c", r)) {
 			hasKanji = true
 		}
 	}
-	if hasKana {
+	if hasKatakana {
 		score += 10
 	}
 	if hasKanji {
 		score += 10
 	}
-	if hasKana || hasKanji {
+	if hasKatakana || hasKanji {
 		score += 100
 	}
-	score += utf8.RuneCountInString(word)
 	return score
 }

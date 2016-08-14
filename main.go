@@ -8,9 +8,8 @@ import (
 )
 
 func main() {
-	// random := flag.Bool("r", false, "test")
+	random := flag.Bool("r", false, "Random mode. Default: false")
 	flag.Parse()
 	text := flag.Arg(0)
-	fmt.Println(text)
-	fmt.Println(yazawa.ToYazawa(text))
+	fmt.Println(yazawa.ToYazawa(text, *random))
 }
